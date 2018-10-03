@@ -25,11 +25,11 @@ Para el segundo archivo, utilizando la herramienta "bless" abrimos el archivo in
 
 Primero comprobamos que nuestra versión de OpenSSL soporta AES-256
 
-![Imagen AES-256-sopotada](./AES-256-sopotada.png)
+![Imagen AES-256-sopotada](./Ejercicio3/AES-256-sopotada.png)
 
 ### modo ECB:
 
-![ECB-teoria](./ECB-teoria.png)
+![ECB-teoria](./Ejercicio3/ECB-teoria.png)
 
 ~~~~
 openssl aes-256-ecb -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
@@ -38,11 +38,11 @@ Nota: Hemos inicializado el vector de inicialización, pero ecb no lo utiliza, p
 el resultado debe ser el mismo sin importar la cadena de iv que utilicemos.
 ~~~~
 
-![Imagen AES-256-ecb](./aes-256-ecb.png)
+![Imagen AES-256-ecb](./Ejercicio3/aes-256-ecb.png)
 
 Utilizando xxd output1.aes muestra:
 
-![Imagen-xdd-aes-256-ecb](./xdd-aes-256-ecb.png)
+![Imagen-xdd-aes-256-ecb](./Ejercicio3/xdd-aes-256-ecb.png)
 
 Aplicando el mismo proceso para el segundo archivo:
 ~~~~
@@ -51,7 +51,7 @@ openssl aes-256-ecb -K 0123456789abcdef0123456789abcdef0123456789abcdef012345678
 
 Y mediante xdd:
 
-![Imagen-xdd-aes-256-ecb](./xdd-aes-256-ecb-2.png)
+![Imagen-xdd-aes-256-ecb](./Ejercicio3/xdd-aes-256-ecb-2.png)
 
 En el modo ECB, cada bloque de mensaje que se cifra, se cifra de modo independiente al anterior. Por eso todas las lineas que tengan el mismo contenido, un bloque de ceros, se representan de la misma forma, mientras que la linea donde esta el 1 cambia por completo.
 La última linea entiendo que cambia por el fin de archivo.
@@ -59,15 +59,15 @@ La última linea entiendo que cambia por el fin de archivo.
 
 ### modo CBC:
 
-![CBC-teoria](./CBC-teoria.png)
+![CBC-teoria](./Ejercicio3/CBC-teoria.png)
 
 ~~~~
-openssl aes-256-cbc -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
+openssl aes-256-cbc -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1-cbc.aes
 ~~~~
 
 Aplicamos lo mismo para el segundo archivo y mostramos por pantalla(con xxd) el resultado para compararlo:
 
-![CBC-comparacion](./CBC-comparacion.png)
+![CBC-comparacion](./Ejercicio3/CBC-comparacion.png)
 
 En modo CBC el primer bloque del mensaje recibe solo la suma (XOR) con el IV y se le aplica la clave, pero como el primer mensaje no tiene un antecesor, resulta ser un simple XOR con el IV inicial que elegimos. Por esta razón la primera linea de nuestro output1 y output2 coinciden.
 Por la misma razón resultan ser todas las linea consiguientes distintas, ya que al modificarse un bit en la segunda linea ya cambia todo el resultado siguiente.
@@ -75,7 +75,151 @@ Por la misma razón resultan ser todas las linea consiguientes distintas, ya que
 
 ### modo OFB:
 
-![CBC-teoria](./OFB-teoria.png)
+![CBC-teoria](./Ejercicio3/OFB-teoria.png)
+
+Aplicamos el cifrado a los archivos: "input1.bin" y "input2.bin" tal que:
+~~~~
+openssl aes-256-ofb -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1-ofb.aes
+~~~~
+___Repetir con input2.bin___
+
+Una vez cifrado los archivos mostramos los resultados:
+
+![OFB-comparacion](./Ejercicio3/xxd-aes-256-ofb.png)
 
 En este modo es el vector de inicio el que se ve afectado por la clave, es decir, cuando vaya a cifrar el primer bloque, coge el IV y le aplica la clave, dará un resultado "S1", que se convertirá en el proximo IV para el siguiente bloque, así sucesivamente hasta el final.
 Cada resultado de aplicar la clave al IV se aplica en XOR con los distintos bloques de nuestro mensaje.
+Es por eso que solo se aprecia una diferencia en la segunda linea , que es donde se encuentra el bit a 1.
+
+## 4. Cifrad input.bin e input1.bin con AES-128 en modo ECB,CBC,OFB usando una contraseña a elegir. Explicad los diferentes resultados.
+
+### ECB
+
+Para realizar un cifrado con contraseña en aes-128-ecb simplemente escribimos en nuestra terminal:
+~~~~
+openssl aes-128-ecb -in input1.bin -out output1-ecb.aes128
+
+Nos pedirá una contraseña y que la verifiquemos, en mi caso he elegido: 1234
+~~~~
+
+Mostramos el resultado de ambos:
+
+![ECB-comparación](./Ejercicio4/xdd-aes-128-ecb.png)
+
+Podemos observar en la primera linea: Salted_ ....
+En diferencia a cifrar con una clave y un vector inicial elegido por nosotros, openssl se encarga de elegir una ___clave y vector inicial al azar___ de tal forma que el mismo archivo cifrado 2 veces consecutivas con la misma operación(la escrita en el recuadro de antes) mostrará dos resultados completamente diferentes uno de otro vease este ejemplo en el que se muestran dos resultados de cifrar el mismo archivo input1.bin(todo ceros) como indicamos antes:
+
+![ECB-comparacion-input1](./Ejercicio4/xdd-aes-128-ecb-2.png)
+
+Por lo demás sigue la misma fórmula que con aes-256-ecb
+
+### CBC
+
+Mismo proceso que antes:
+
+![aes-128-cbc](./Ejercicio4/creacion-cbc.png)
+
+Contraseña:1234
+
+Mostramos los resultados de ambos:
+
+![CBC-comparacion](./Ejercicio4/xdd-aes-cbc.png)
+
+Y volvemos a comparar ahora los resultados de input1:
+
+![CBC-comparacion-input1](./Ejercicio4/xdd-aes-128-cbc-2.png)
+
+Comprobamos que al igual que con el ECB, los resultados de cifrar input1 de la misma manera dan como resultado dos cifrados completamente distintos. Aun así, se sigue aplicando CBC con total normalidad.
+
+### OFB
+
+Repetimos proceso pero esta vez con OFB:
+
+![aes-128-ofb](./Ejercicio4/creacion-ofb.png)
+
+Mostramos los resultados de ambos:
+
+![OFB-comparacion](./Ejercicio4/xdd-aes-ofb.png)
+
+Y volvemos a comparar, una vez más, los resultados de input1:
+
+![OFB-comparacion-input1](./Ejercicio4/xdd-aes-128-ofb-2.png)
+
+Y, de nuevo, comprobamos que no tienen nada que ver los resultados generados de input1.
+
+Como conclusión, podemos comprobar que openssl establece su propio iv y su propia clave cada vez que se le manda cifrar un archivo, aunque este sea el mismo, lo que si podemos comprobar es que se cifran tal cual viene explicado en el ejercicio anterior.
+
+## 5 Repetir el punto anterior con la opcion -nosalt.
+
+Con la opción -nosalt , evitamos la aleatoriedad a la hora de cifrar el archivo mediante una contraseña, vamos a comprobarlo:
+
+### ECB
+
+Creación de archivos:
+
+![Creación-ECB](./Ejercicio5/creacion-ecb.png)
+
+Comparamos entre los dos:
+
+![](./Ejercicio5/comparacion-ecb-nosalt.png)
+
+Por último comparamos input1 consigo mismo creandolo de nuevo:
+
+![](./Ejercicio5/comparacion-ecb-input1.png)
+
+### CBC
+
+Creación de archivos:
+
+![Creación-CBC](./Ejercicio5/creacion-cbc.png)
+
+Comparamos entre los dos:
+
+![](./Ejercicio5/comparacion-cbc-nosalt.png)
+
+Por último comparamos input1 consigo mismo creandolo de nuevo:
+
+![](./Ejercicio5/comparacion-cbc-input1.png)
+
+### OFB
+
+Creación de archivos:
+
+![Creación-OFB](./Ejercicio5/creacion-ofb.png)
+
+Comparamos entre los dos:
+
+![](./Ejercicio5/comparacion-ofb-nosalt.png)
+
+Por último comparamos input1 consigo mismo creandolo de nuevo:
+
+![](./Ejercicio5/comparacion-ofb-input1.png)
+
+
+Podemos observar que, evidentemente, ahora elige la misma clave y el mismo iv para el mismo archivo y ya no existe ningun tipo de aleatoriedad.
+
+## 6. Cifrar input1.bin con aes-192 en modo OFB, clave y vector de inicialización a elegir(no contraseña).Supongamos que la salida es output.bin
+
+La clave en aes-192 deberá de ser de 48 carácteres, pues que 192 bits corresponde a 48 caracteres hexadecimales que ocupan 4 bits cada uno.
+Para este ejercicio elegiremos como clave K :
+___0123456789abcdef0123456789abcdef0123456789abcdef___
+
+Como vector inicial: ___0123456789abcdef___
+
+Para cifrar el archivo utilizamos:
+~~~~
+openssl aes-192-ofb -K 0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
+~~~~
+
+![Captura-Pantalla](./Ejercicio6/captura-ofb.png)
+
+Mostramos el resultado:
+
+![Captura-resultado](./Ejercicio6/resultado-ofb.png)
+
+## 7. Descifrar output.bin utilizando la misma clave y vector de inicialización que en el ejercicio 6.
+
+Para descifrar un archivo cifrado con ___AES-XXX___ tan solo hace falta utilizar el parámetro -d, añadiendo además como entrada ___-in "el archivo cifrado"___ y como salida ___-out "el archivo descrifrado"___.
+Después para visualizar el archivo, basta con utilizar xxd "el nombre del archivo de salida", a continuación se muestra una imagen de como realizarlo:
+
+![Descrifrado](./Ejercicio7/decrypt.png)
