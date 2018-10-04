@@ -223,3 +223,17 @@ Para descifrar un archivo cifrado con ___AES-XXX___ tan solo hace falta utilizar
 Después para visualizar el archivo, basta con utilizar xxd "el nombre del archivo de salida", a continuación se muestra una imagen de como realizarlo:
 
 ![Descrifrado](./Ejercicio7/decrypt.png)
+
+## 8. Vuelve a cifrar output.bin(el archivo cifrado) con aes-192 en modo OFB, clave y vector de inicialización del ejercicio 6. Compara el resultado obtenido con el punto 7, explicando el resultado.
+
+Para cifrar de nuevo el archivo basta con pasarle al output el mismo cifrado tal que:
+
+![creacion](./Ejercicio8/creacion.png)
+
+Comparamos el resultado del ejercicio 7 con el 8:
+![mostrar](./Ejercicio8/mostrar7.png)
+![mostrar](./Ejercicio8/mostrar.png)
+
+Podemos observar que cuando a un archivo ___A___ le aplicamos un cifrado obtenemos ___A'___, y a partir de aqui,tanto si desciframos como si ciframos ___A'___ obtenemos ___A___.
+
+## 9. Repetir los puntos 6,7 y 8 pero empleando contraseña en lugar de clave y vector de inicialización.
