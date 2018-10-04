@@ -19,7 +19,7 @@ Conseguimos un archivo de 1024 bits(128 bytes) totalmente a cero.
 
 ***Nota: dev/zero es un archivo propio de Unix que provee de tantos caracteres null como necesitemos.***
 
-Para el segundo archivo, utilizando la herramienta "bless" abrimos el archivo input2.bin e introducimos un 1 en la posición indicada, teniendo en cuenta que cada pareja de ceros (00) es equivalente a 16 bits.
+Para el segundo archivo, utilizando la herramienta "bless" abrimos el archivo input2.bin e introducimos un 1 en la posición indicada.
 
 ##3. Cifrar ambos archivos con AES-256 en modos ECB, CBC y 0FB usando una clave a elegir del tamaño adecuado (32 bytes, 64 caracteres),y con vector de inicialización "0123456789abcdef".
 
@@ -235,5 +235,53 @@ Comparamos el resultado del ejercicio 7 con el 8:
 ![mostrar](./Ejercicio8/mostrar.png)
 
 Podemos observar que cuando a un archivo ___A___ le aplicamos un cifrado obtenemos ___A'___, y a partir de aqui,tanto si desciframos como si ciframos ___A'___ obtenemos ___A___.
+Esto es debido a que el cifrado por OFB realiza la operacion tal que:
+~~~~
+  IV --> So --> S1 = Ek(So) --> ..... S2 --> .....  Sn
+                      |xor            |xor          |xor
+                      M1              M2            Mn
+~~~~
+De tal forma que al aplicarlo sobre nuestro mensaje el cual está a cero en todos los bits resulta que nuestro archivo output esta formado por los distintos bloques de la forma:
+~~~~
+  S1,S2,...Sn ; Es decir, el resultado de nuestro archivo cifrado es el vector inicial
+  aplicandole la clave(S1), S1 aplicandole la clave(S2),....,Sn-1 aplicandole la clave(Sn)
+~~~~
+Por tanto, al volver a aplicar, con el mismo IV y clave la operacón XOR al bloque cifrado obtenemos:
+~~~~
+  S1 xor S1 = 0
+  S2 xor S2 = 0
+  ....
+  Sn xor Sn = 0
+~~~~
+Esta es la razón por la que al descifrar y al cifrar el primer archivo output obtenemos el mismo resultado.
+
 
 ## 9. Repetir los puntos 6,7 y 8 pero empleando contraseña en lugar de clave y vector de inicialización.
+
+Como contraseña elegiremos al igual que en ejercicios anteriores: 1234
+
+1. Empezaremos realizando el apartado 6(Cifrar input1.bin con aes-192 en modo OFB con pass):
+
+![Creacion-aes-192-pass](./Ejercicio9/output1ofbpass.png)
+
+2. En el apartado 7(Descriframos utilizando la pass del ejercicio 6)
+
+![decrypt](./Ejercicio9/decrypt.png)
+![resultado](./Ejercicio9/show.png)
+
+3. Apartado del ejercicio 8(cifrar de nuevo la salida anterior con la misma contraseña,1234):
+
+![decrypt](./Ejercicio9/doble_cifrado.png)
+![resultado](./Ejercicio9/show_doble_cifrado.png)
+
+Esta vez, podemos ver que el resultado no es el mismo, esto es por la aleatoriedad a la hora de elegir el IV y la clave al cifrar los archivos, en consecuencia, la primera vez se realizo el XOR con un IV y una Clave, que después fueron distintas, como consecuencia, el resultado es el obtenido.
+
+## 10. Presentar otro algoritmo de cifrado simétrico que aparezca en mi implementación de openssl
+
+#### MD5
+
+MD5, es uno de los cifrados más usados en la red. Este algoritmo cifra normalmente con un número de 32 símbolos hexadecimales. De tal manera que si aplicamos a un simple mensaje: "abcde", un cifrado por md5 resulta un numero de 32 dígitos, el cual, será totalmente diferente con un simple cambio como puede ser: "abcdf"
+
+ En sus inicios se consideraba como un algoritmo de cifrado seguro, hasta que se habló de la colisión de hash
+
+Longitud del resultado 32 dígitos
