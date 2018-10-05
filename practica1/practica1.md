@@ -1,15 +1,8 @@
-
--K clave hexadecimal  256 bits -> 32 en hexadecimal
--pass pass:contraseña password (salt , cadena aleatoria que agrega openssl a la contraseña,evita ataques de diccionario).
-
-Necesitamos un visualizador de archivos hexadecimales. (bless o algo asi)
-
-
-#Practica 1 SPSI
+# Practica 1 SPSI
 
 En este documento explicaremos paso a paso la resolución de la primera práctica de la asignatura SPSI.
 
-##1. y 2.Creación de dos archivos binarios de 1024 bits, uno de ellos con todos los bits a 0 y el otro con un bit a 1 entre el 130 y 150.
+## 1. y 2.Creación de dos archivos binarios de 1024 bits, uno de ellos con todos los bits a 0 y el otro con un bit a 1 entre el 130 y 150.
 
 Mediante:
 ~~~~
@@ -21,7 +14,7 @@ Conseguimos un archivo de 1024 bits(128 bytes) totalmente a cero.
 
 Para el segundo archivo, utilizando la herramienta "bless" abrimos el archivo input2.bin e introducimos un 1 en la posición indicada.
 
-##3. Cifrar ambos archivos con AES-256 en modos ECB, CBC y 0FB usando una clave a elegir del tamaño adecuado (32 bytes, 64 caracteres),y con vector de inicialización "0123456789abcdef".
+## 3. Cifrar ambos archivos con AES-256 en modos ECB, CBC y 0FB usando una clave a elegir del tamaño adecuado (32 bytes, 64 caracteres),y con vector de inicialización "0123456789abcdef".
 
 Primero comprobamos que nuestra versión de OpenSSL soporta AES-256
 
@@ -32,10 +25,13 @@ Primero comprobamos que nuestra versión de OpenSSL soporta AES-256
 ![ECB-teoria](./Ejercicio3/ECB-teoria.png)
 
 ~~~~
-openssl aes-256-ecb -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
+openssl aes-256-ecb -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1.aes
 
-Nota: Hemos inicializado el vector de inicialización, pero ecb no lo utiliza, por lo que
-el resultado debe ser el mismo sin importar la cadena de iv que utilicemos.
+Nota: Hemos inicializado el vector de inicialización, pero ecb no lo utiliza,
+por lo que el resultado debe ser el mismo sin importar la cadena de iv que
+utilicemos.
 ~~~~
 
 ![Imagen AES-256-ecb](./Ejercicio3/aes-256-ecb.png)
@@ -46,7 +42,9 @@ Utilizando xxd output1.aes muestra:
 
 Aplicando el mismo proceso para el segundo archivo:
 ~~~~
-openssl aes-256-ecb -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
+openssl aes-256-ecb -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1.aes
 ~~~~
 
 Y mediante xdd:
@@ -62,7 +60,9 @@ La última linea entiendo que cambia por el fin de archivo.
 ![CBC-teoria](./Ejercicio3/CBC-teoria.png)
 
 ~~~~
-openssl aes-256-cbc -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1-cbc.aes
+openssl aes-256-cbc -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1-cbc.aes
 ~~~~
 
 Aplicamos lo mismo para el segundo archivo y mostramos por pantalla(con xxd) el resultado para compararlo:
@@ -79,7 +79,9 @@ Por la misma razón resultan ser todas las linea consiguientes distintas, ya que
 
 Aplicamos el cifrado a los archivos: "input1.bin" y "input2.bin" tal que:
 ~~~~
-openssl aes-256-ofb -K 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1-ofb.aes
+openssl aes-256-ofb -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1-ofb.aes
 ~~~~
 ___Repetir con input2.bin___
 
@@ -208,7 +210,9 @@ Como vector inicial: ___0123456789abcdef___
 
 Para cifrar el archivo utilizamos:
 ~~~~
-openssl aes-192-ofb -K 0123456789abcdef0123456789abcdef0123456789abcdef -iv 0123456789abcdef -in input1.bin -out output1.aes
+openssl aes-192-ofb -K
+0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1.aes
 ~~~~
 
 ![Captura-Pantalla](./Ejercicio6/captura-ofb.png)
@@ -243,8 +247,9 @@ Esto es debido a que el cifrado por OFB realiza la operacion tal que:
 ~~~~
 De tal forma que al aplicarlo sobre nuestro mensaje el cual está a cero en todos los bits resulta que nuestro archivo output esta formado por los distintos bloques de la forma:
 ~~~~
-  S1,S2,...Sn ; Es decir, el resultado de nuestro archivo cifrado es el vector inicial
-  aplicandole la clave(S1), S1 aplicandole la clave(S2),....,Sn-1 aplicandole la clave(Sn)
+  S1,S2,...Sn ; Es decir, el resultado de nuestro archivo cifrado es el vector
+  inicial aplicandole la clave(S1), S1 aplicandole la clave(S2),....,Sn-1
+  aplicandole la clave(Sn)
 ~~~~
 Por tanto, al volver a aplicar, con el mismo IV y clave la operacón XOR al bloque cifrado obtenemos:
 ~~~~
@@ -278,10 +283,166 @@ Esta vez, podemos ver que el resultado no es el mismo, esto es por la aleatoried
 
 ## 10. Presentar otro algoritmo de cifrado simétrico que aparezca en mi implementación de openssl
 
-#### MD5
+#### Camellia
 
-MD5, es uno de los cifrados más usados en la red. Este algoritmo cifra normalmente con un número de 32 símbolos hexadecimales. De tal manera que si aplicamos a un simple mensaje: "abcde", un cifrado por md5 resulta un numero de 32 dígitos, el cual, será totalmente diferente con un simple cambio como puede ser: "abcdf"
+Camellia es un cifrado simétrico cuyo tamaño de bloque es de 128 bits. Y cuya longitud de clave es de 128,192 y 256 bits.
+Este cifrado tiene un nivel y habilidad de proceso comparable a AES.
 
- En sus inicios se consideraba como un algoritmo de cifrado seguro, hasta que se habló de la colisión de hash
+Si nos preguntamos entonces:¿Por qué utilizar AES y no Camellia si son tan parecidos? La respuesta la podemos encontrar en este artículo: [Camellia](https://www.jmest.org/wp-content/uploads/JMESTN42351298.pdf)
 
-Longitud del resultado 32 dígitos
+En él se nos muestra una tabla de velocidad en función de los distintos tamaños de bloques que hay. Y aunque las primeras medias no son muy lejanas entre ellas, podemos observar como los tiempos se multiplican por 4 en el caso de Camellia, dejando a AES muy por encima en eficiencia. Aunque ambos se consideran a un nivel equiparable el uno del otro a la hora de hablar de seguridad.
+
+
+Camellia es parte de la TLS, la capa de transporte, es un protrocolo de criptografía diseñado para proporcionar una comunicación segura entre una red de ordenadores, como puede ser internet.
+
+## 11. Repetir el ejercicico 3,4 y 5 con el cifrado presentado en el ejercicio 10
+
+####1. Cifraremos input1.bin e input2.bin con Camellia-256 en los modos ECB,CBC y OFB usando una clave del tamaño adecuado y con un IV inicializado a "0123456789abcdef"
+
+##### ECB
+
+Usaremos la orden:
+~~~~
+openssl camellia-256-ecb -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1-ecb.camelia
+
+Al igual que con AES, nos advierte que el IV no se utilizará para cifrar con ECB
+~~~~
+
+![resultado](./Ejercicio11/cam-ecb.png)
+
+Mostraremos ahora el resultado del cifrado con Camellia:
+
+![mostramos](./Ejercicio11/show-ecb.png)
+
+Comparamos con el de AES:
+
+![aes](./Ejercicio11/xdd-aes-256-ecb.png)
+
+Ya podemos comprobar que aunque el cifrado es similar, no es idéntico. Tengamos en cuenta que todos los parámetros han sido idénticos, tanto la clave, como el IV, como el archivo binario "input1.bin" del que partíamos inicialmente.
+
+Cifremos ahora el input2.bin siguiendo los pasos anteriores y mostramos el resultado del archivo:
+
+![mostramos](./Ejercicio11/ecb-camelia-2.png)
+
+Comprobamos que sigue ocurriendo al igual que antes con AES.
+
+
+##### CBC
+
+Usaremos la orden:
+~~~~
+openssl camellia-256-cbc -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1-cbc.camelia
+
+~~~~
+
+![resultado](./Ejercicio11/cam-cbc.png)
+
+Mostraremos ahora el resultado del cifrado con Camellia:
+
+![mostramos](./Ejercicio11/show-cbc.png)
+![mostramos](./Ejercicio11/show-cbc-2.png)
+
+Comparamos con el de AES:
+
+![aes](./Ejercicio11/CBC-comparacion.png)
+
+Efectivamente ocurre lo mismo que con ECB, vamos a comprobar ahora con OFB
+
+##### OFB
+
+Usaremos la orden:
+~~~~
+openssl camellia-256-ofb -K
+0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+-iv 0123456789abcdef -in input1.bin -out output1-ofb.camelia
+~~~~
+
+![resultado](./Ejercicio11/cam-ofb.png)
+
+Mostraremos ahora el resultado del cifrado con Camellia:
+
+![mostramos](./Ejercicio11/show-ofb.png)
+![mostramos](./Ejercicio11/show-ofb-2.png)
+
+Comparamos con el de AES:
+
+![aes](./Ejercicio11/OFB-comparacion.png)
+
+Efectivamente ocurre lo mismo que con CBC, queda demostrado que Camelia funciona de manera similar que AES al menos con los parámetros elegidos de IV y la clave.
+
+####2. Cifrad input1.bin e input2.bin con camelia-128 en modo ECB,CBC y OFB usando contraseña a elegir. Explicar los diferentes resultados.
+
+Ciframos con el comando:
+~~~~
+openssl camellia-128-ecb -in input1.bin -out output1-128-ecb.camelia
+
+Utilizaremos la contraseña: 1234
+~~~~
+
+##### ECB
+
+![Creacion-ECB](./Ejercicio11/creacion-ecb.png)
+
+##### CBC
+
+![Creacion-CBC](./Ejercicio11/creacion-cbc.png)
+
+##### OFB
+
+![Creacion-OFB](./Ejercicio11/creacion-ofb.png)
+
+
+___Comparamos los resultados de los tres:___
+
+##### ECB
+
+![Comparamos-ECB](./Ejercicio11/comp-ecb.png)
+
+##### CBC
+
+![Comparamos-CBC](./Ejercicio11/comp-cbc.png)
+
+##### OFB
+
+![Comparamos-OFB](./Ejercicio11/comp-ofb.png)
+
+Para hacer una comparación como en el ___ejercicio 4___ se han creado otra vez los input1 en los 3 modos(ECB,CBC Y OFB) tal que:
+
+![Creacion-de-nuevo](./Ejercicio11/creacion-otra.png)
+
+Y los mostramos:
+
+![mostramos](./Ejercicio11/ecb-1-again.png)
+![mostramos](./Ejercicio11/ofb-1-again.png)
+
+Así podemos comprobar que ocurre al igual que con AES, los resultados son diferentes cada vez que aplicamos el cifrado con password, puesto que cada vez que ciframos los valos de la clave y el IV son ___aleatorios___.
+
+####3. Repetir el ejercicio 4 pero usando el parámetro -nosalt.
+
+Crearemos los archivos cifrados con el parámetros -nosalt:
+~~~~
+openssl camellia-128-ecb -nosalt -in input1.bin -out output1-128-ecb.camelia
+
+Utilizaremos la contraseña: 1234
+~~~~
+![](./Ejercicio11/ecb-nosalt-creacion.png)
+
+Crearemos también el CBC y el OFB:
+
+![](./Ejercicio11/cbc-nosalt-creacion.png)
+![](./Ejercicio11/ofb-nosalt-creacion.png)
+
+Hemos creado la segunda version de la creacion para hacer ahora la comparación, para comprobar si pasa lo mismo que en el ___ejercicio 4___ con AES o no:
+
+#####ECB
+![](./Ejercicio11/mostrar-ecb-nosalt.png)
+#####CBC
+![](./Ejercicio11/mostrar-cbc-nosalt.png)
+#####OFB
+![](./Ejercicio11/mostrar-ofb-nosalt.png)
+
+En conclusión, podemos decir, que al igual que con AES, utilizar el parámetro -nosalt, produce que los resultados sean siempre los mismos, es decir, la clave y el IV serán los mismos para el mismo objeto.
