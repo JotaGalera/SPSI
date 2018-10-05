@@ -421,7 +421,7 @@ Y los mostramos:
 
 Así podemos comprobar que ocurre al igual que con AES, los resultados son diferentes cada vez que aplicamos el cifrado con password, puesto que cada vez que ciframos los valos de la clave y el IV son ___aleatorios___.
 
-####3. Repetir el ejercicio 4 pero usando el parámetro -nosalt.
+#### 3. Repetir el ejercicio 4 pero usando el parámetro -nosalt.
 
 Crearemos los archivos cifrados con el parámetros -nosalt:
 ~~~~
@@ -438,11 +438,11 @@ Crearemos también el CBC y el OFB:
 
 Hemos creado la segunda version de la creacion para hacer ahora la comparación, para comprobar si pasa lo mismo que en el ___ejercicio 4___ con AES o no:
 
-#####ECB
+##### ECB
 ![](./Ejercicio11/mostrar-ecb-nosalt.png)
-#####CBC
+##### CBC
 ![](./Ejercicio11/mostrar-cbc-nosalt.png)
-#####OFB
+##### OFB
 ![](./Ejercicio11/mostrar-ofb-nosalt.png)
 
 En conclusión, podemos decir, que al igual que con AES, utilizar el parámetro -nosalt, produce que los resultados sean siempre los mismos, es decir, la clave y el IV serán los mismos para el mismo objeto.
