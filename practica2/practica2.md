@@ -66,7 +66,7 @@ Para intentar cifrar el archivo input.bin utilizaremos el comando:
 openssl rsautl -encrypt -inkey <nombre>RSApub.pem -pubin -in input.bin -out resultado.ssl
 ~~~~
 
-![](.ej4/genResult.png)
+![](./ej4/genResult.png)
 
 Nos muestra un error:
 
@@ -82,7 +82,7 @@ El parámetro "rsautl" no cifra ningún dato de entrada que sea más grande que 
 
 ~~~~
 1. El emisor debe seleccionar un sistema simétrico con su correspondiente modo de operación.
-2. El emisor generará un archivo de texto, llamado por ejemplo "sessionkey" con dos líneas. La primera línea contendrá una cadena aleatoria hexadecimal cuya longitud sea la requerida para la clave del criptosistema simétrico. OpenSSL perimite generar cadenas aleatorias con el comando openssl rand. La segunda línea contendrá la información del criptosistema simétrico seleccionado. Por ejemplo, si hemos decididio emplear el algoritmo de Blowfish en modo ECB, la segunda línea debería conteener -bf-ecb.
+2. El emisor generará un archivo de texto, llamado por ejemplo "sessionkey" con dos líneas. La primera línea contendrá una cadena aleatoria hexadecimal cuya longitud sea la requerida para la clave del criptosistema simétrico. OpenSSL permite generar cadenas aleatorias con el comando openssl rand. La segunda línea contendrá la información del criptosistema simétrico seleccionado. Por ejemplo, si hemos decidido emplear el algoritmo de Blowfish en modo ECB, la segunda línea debería contener -bf-ecb.
 3. El archivo "sessionkey" se cifrará con la clave pública del receptor.
 4. El mensaje se cifrará utilizando el criptosistema simétrico, la clave se generará a partir del archivo anterior mediante la operación:
 -pass file:sessionkey.s
@@ -101,3 +101,66 @@ En la segunda línea contendrá: -bf-ecb
 Comprobamos el estado del archivo final:
 
 ![](./ej5/showFile.png)
+
+- Apartado 3: Para cifrar el archivo "sessionkey" con la clave publica del receptor, primero necesitamos la clave pública de este:
+
+Para ello seguiremos los puntos anteriores para ellos "<nombre>" tomará el valor de "Receptor".
+
+![](./ej5/Receptor.png)
+
+Utilizamos el siguiente comando:
+~~~~
+openssl rsautl -encrypt -in sessionkey -out sessionkey.enc -inkey ReceptorRSApub.pem -pubin
+~~~~
+
+![](./ej5/encryptPub.png)
+
+- Apartado 4: Por último una vez tenemos el archivo sessionkey.enc cifraremos con ECB-256 y utilizando como clave el archivo "sessionkey.enc" el mensaje del emisor, el mensaje estará en el archivo "mensaje.txt".
+
+Para ello utilizamos el comando:
+~~~~
+openssl enc -aes-256-ecb -pass file:sessionkey.enc -in mensaje.txt -out
+mensaje.enc
+~~~~
+
+![](./ej5/encryptMen.png)
+
+## Utilizando el criptosistema híbrido diseñado, se debe cifrar el archivo input.bin con la propia clave pública. Y a continuación, descifrarlo con la clave privada y compararlo con el resultado original.
+
+Ciframos input.bin:
+~~~~
+openssl enc -aes-256-ecb -pass file:sessionkey -in input1.bin
+-out encryptInput.bin
+~~~~
+
+Con esto utilizamos la clave de sesión generada anteriormente(sessionkey).
+El archivo cifrado quedaría tal que:
+
+![](./ej6/inputEncrypt.png)
+
+Ya tenemos cifrado el archivo, ahora vamos a descifrarlo. Al utilizar el cifrado híbrido le daríamos al receptor el sessionkey cifrado y en mensaje cifrado. El receptor debe descifrar con su clave privada el sessionkey y una vez hecho esto aplicar el descifrado del criptosistema simétrico que se encuentra en el archivo "sessionkey".
+(Previamente hemos cifrado sessionkey con nuestra clave pública, pues el emisor y el receptor en este caso soy yo mismo).
+
+![](./ej6/conMiPub.png)
+
+Utilizamos:
+
+~~~~
+openssl rsautl -decrypt -in sessionkey.enc -out sessionkey.denc
+-inkey JavierGaleraRSApriv.pem
+~~~~
+
+Mostramos el resultado:
+
+![](./ej6/resultado.png)
+
+Podemos comprobar que el resultado era el esperado, una vez tenemos el archivo descifrado de forma correcta, usamos el cifrado simétrico para descifrar el archivo encryptInput.bin, para ello utilizamos:
+
+~~~~
+openssl enc -aes-256-ecb -pass file:sessionkey.denc
+-in encryptInput.bin -out decryptInput.bin
+~~~~
+
+![](./ej6/resulFin.png)
+
+El sistema funciona, hemos conseguido descifrar el mensaje.
