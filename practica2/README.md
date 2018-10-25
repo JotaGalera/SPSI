@@ -112,7 +112,7 @@ generará a partir del archivo anterior mediante la operación:
 ~~~~
 
 - Apartado 1: Escogeremos el modo ECB-256.
-- Apartado 2: Creación del arhivo.
+- Apartado 2: Creación del archivo.
 
 Para nuestra clave utilizaremos el comando: openssl rand -hex 32
 De esta forma generará en la primera línea los 64 bits que necesitamos.
@@ -193,7 +193,7 @@ El sistema funciona, hemos conseguido descifrar el mensaje.
 
 <div style="page-break-after: always;"></div>
 
-## Generar un archivo stdECparam.pem que contenga los parámentros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
+## Generar un archivo stdECparam.pem que contenga los parámetros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
 
 Para ver el listado de curvas elípticas disponibles en OpenSSL usaremos el comando ___ecparam___. Con este comando también podremos manipular y generar dichas curvas.
 
@@ -224,7 +224,7 @@ Comprobamos que hay 2 líneas: ___ASN1 OID___ y ___NIST CURVE___.
 
 <div style="page-break-after: always;"></div>
 
-## Generar una clave para los parámentros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
+## Generar una clave para los parámetros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
 
 Para ello, y a partir del parámetro anterior ___ecparam___, escribimos en la terminal:
 
@@ -258,7 +258,7 @@ En la información comprobamos que se ha cifrado con "DES" en modo "CBC" el rest
 
 <div style="page-break-after: always;"></div>
 
-## Extraer en <nombre>ECpub.pem la clave pública ccontenida en el archivo <nombre>ECkey.pem. Xomo antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
+## Extraer en <nombre>ECpub.pem la clave pública contenida en el archivo <nombre>ECkey.pem. Como antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
 
 Para ello utilizamos el comando:
 
