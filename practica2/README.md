@@ -21,6 +21,7 @@ Con el parámetro -text, añade al archivo de las claves los valores de estas en
 ![](./ej1/textRSA.png)
 ![](./ej1/textRSA2.png)
 
+<div style="page-break-after: always;"></div>
 ## Extraer la clave privada contenida en el archivo <nombre>RSAkey.pem a otro archivo que tenga por nombre <nombre>RSApriv.pem. Este archivo deberá estar protegido por contraseña cifrándolo con AES-128.Mostrar sus valores.
 
 Para extraer la parte privada de nuestra clave utilizamos:
@@ -43,6 +44,7 @@ openssl rsa -in <nombre>RSApriv.pem -text -noout
 
 Comprobamos en el apartado "DEK-info" que el archivo ha sido cifrado por DES en modo "CBC"
 
+<div style="page-break-after: always;"></div>
 ## Extraer en <nombre>RSApub.pem la clave pública contenida en el archivo <nombre>RSApub.pem no debe estar cifrado ni protegido.Mostrar sus valores.
 
 Para extraer la parte pública del archivo utilizamos:
@@ -58,16 +60,19 @@ Ahora mostraremos el resultado de nuestra clave pública:
 ~~~~
 openssl rsa -in <nombre>RSApub.pem -pubin -text -noout
 
-NOTA: por defecto a la hora de extrar, openssl entiende que las claves son privadas, es por eso que hay que añadir el parametro -pubin.
+NOTA: por defecto a la hora de extrar, openssl entiende que las claves son
+privadas, es por eso que hay que añadir el parametro -pubin.
 ~~~~
 ![](./ej3/showPub.png)
 
+<div style="page-break-after: always;"></div>
 ## Reutilizar el archivo binario input.bin de 1024 bits, todos ellos con valor a 0, de la practica anterior. Intentar cifrar input.bin con la clave pública y explicar el mensaje de error obtenido.
 
 Para intentar cifrar el archivo input.bin utilizaremos el comando:
 
 ~~~~
-openssl rsautl -encrypt -inkey <nombre>RSApub.pem -pubin -in input.bin -out resultado.ssl
+openssl rsautl -encrypt -inkey <nombre>RSApub.pem -pubin -in input.bin -out
+resultado.ssl
 ~~~~
 
 ![](./ej4/genResult.png)
@@ -76,19 +81,29 @@ Nos muestra un error:
 
 ~~~~
 RSA operation error
-140522747445696:error:0406D06E:rsa routines:RSA_padding_add_PKCS1_type_2:data too large for key size:../crypto/rsa/rsa_pk1.c:125:
+140522747445696:error:0406D06E:rsa routines:RSA_padding_add_PKCS1_type_2:data
+too large for key size:../crypto/rsa/rsa_pk1.c:125:
 ~~~~
 
 "KeyPubli: 901 bits" ; "Input.bin: 1024 bits" ;
 El parámetro "rsautl" no cifra ningún dato de entrada que sea más grande que el tamaño de la clave RSA. 901 < 1024, por lo tanto no puede cifrar el archivo.
 
+<div style="page-break-after: always;"></div>
 ## Diseñar un cifrado híbrido, con RSA como criptosistema asimétrico. El modo de proceder será el siguiente:
 
 ~~~~
-1. El emisor debe seleccionar un sistema simétrico con su correspondiente modo de operación.
-2. El emisor generará un archivo de texto, llamado por ejemplo "sessionkey" con dos líneas. La primera línea contendrá una cadena aleatoria hexadecimal cuya longitud sea la requerida para la clave del criptosistema simétrico. OpenSSL permite generar cadenas aleatorias con el comando openssl rand. La segunda línea contendrá la información del criptosistema simétrico seleccionado. Por ejemplo, si hemos decidido emplear el algoritmo de Blowfish en modo ECB, la segunda línea debería contener -bf-ecb.
+1. El emisor debe seleccionar un sistema simétrico con su correspondiente
+modo de operación.
+2. El emisor generará un archivo de texto, llamado por ejemplo "sessionkey"
+con dos líneas. La primera línea contendrá una cadena aleatoria hexadecimal
+cuya longitud sea la requerida para la clave del criptosistema simétrico.
+OpenSSL permite generar cadenas aleatorias con el comando openssl rand.
+La segunda línea contendrá la información del criptosistema simétrico
+seleccionado. Por ejemplo, si hemos decidido emplear el algoritmo de Blowfish
+en modo ECB, la segunda línea debería contener -bf-ecb.
 3. El archivo "sessionkey" se cifrará con la clave pública del receptor.
-4. El mensaje se cifrará utilizando el criptosistema simétrico, la clave se generará a partir del archivo anterior mediante la operación:
+4. El mensaje se cifrará utilizando el criptosistema simétrico, la clave se
+generará a partir del archivo anterior mediante la operación:
 -pass file:sessionkey.s
 ~~~~
 
@@ -114,7 +129,8 @@ Para ello seguiremos los puntos anteriores para ellos "<nombre>" tomará el valo
 
 Utilizamos el siguiente comando:
 ~~~~
-openssl rsautl -encrypt -in sessionkey -out sessionkey.enc -inkey ReceptorRSApub.pem -pubin
+openssl rsautl -encrypt -in sessionkey -out sessionkey.enc -inkey
+ReceptorRSApub.pem -pubin
 ~~~~
 
 ![](./ej5/encryptPub.png)
@@ -129,6 +145,7 @@ mensaje.enc
 
 ![](./ej5/encryptMen.png)
 
+<div style="page-break-after: always;"></div>
 ## Utilizando el criptosistema híbrido diseñado, se debe cifrar el archivo input.bin con la propia clave pública. Y a continuación, descifrarlo con la clave privada y compararlo con el resultado original.
 
 Ciframos input.bin:
@@ -169,7 +186,8 @@ openssl enc -aes-256-ecb -pass file:sessionkey.denc
 
 El sistema funciona, hemos conseguido descifrar el mensaje.
 
-#Generar un archivo stdECparam.pem que contenga los parámentros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
+<div style="page-break-after: always;"></div>
+## Generar un archivo stdECparam.pem que contenga los parámentros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
 
 Para ver el listado de curvas elípticas disponibles en OpenSSL usaremos el comando ___ecparam___. Con este comando también podremos manipular y generar dichas curvas.
 
@@ -190,7 +208,7 @@ El archivo creado:
 
 información del archivo:
 
-![](./ej7/infoprime256.png)
+![](./ej7/infprime256.png)
 
 Comprobamos que hay 2 líneas: ___ASN1 OID___ y ___NIST CURVE___.
 
@@ -198,7 +216,8 @@ Comprobamos que hay 2 líneas: ___ASN1 OID___ y ___NIST CURVE___.
 
   2. NIST(The National Institute of Standards and Technology) CURVE tiene el nombre de la curva en el standard, en nuestro caso P-256.
 
-#Generar una clave para los parámentros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
+<div style="page-break-after: always;"></div>
+## Generar una clave para los parámentros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
 
 Para ello, y a partir del parámetro anterior ___ecparam___, escribimos en la terminal:
 
@@ -212,7 +231,8 @@ Así el archivo queda tal que:
 
 ![](./ej8/keyPriv.png)
 
-# "Extraer" la clave privada contenida en el archivo <nombre>ECkey.pem a otro archivo que tenga por nombre <nombre>ECpriv.pem. Este archivo deberá estar protegido por contraseña. Mostrar los valores
+<div style="page-break-after: always;"></div>
+## "Extraer" la clave privada contenida en el archivo <nombre>ECkey.pem a otro archivo que tenga por nombre <nombre>ECpriv.pem. Este archivo deberá estar protegido por contraseña. Mostrar los valores
 
 Como en los ejercicios anteriores con RSA extraeremos y protegeremos con contraseña utilizaremos el comando:
 
@@ -228,7 +248,8 @@ Podemos comprobar ahora el archivo:
 
 En la información comprobamos que se ha cifrado con "DES" en modo "CBC" el resto es la información necesaria para que, junto a la contraseña, se descifre el archivo.
 
-# Extraer en <nombre>ECpub.pem la clave pública ccontenida en el archivo <nombre>ECkey.pem. Xomo antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
+<div style="page-break-after: always;"></div>
+## Extraer en <nombre>ECpub.pem la clave pública ccontenida en el archivo <nombre>ECkey.pem. Xomo antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
 
 Para ello utilizamos el comando:
 
