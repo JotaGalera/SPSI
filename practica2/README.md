@@ -22,6 +22,7 @@ Con el parámetro -text, añade al archivo de las claves los valores de estas en
 ![](./ej1/textRSA2.png)
 
 <div style="page-break-after: always;"></div>
+
 ## Extraer la clave privada contenida en el archivo <nombre>RSAkey.pem a otro archivo que tenga por nombre <nombre>RSApriv.pem. Este archivo deberá estar protegido por contraseña cifrándolo con AES-128.Mostrar sus valores.
 
 Para extraer la parte privada de nuestra clave utilizamos:
@@ -45,6 +46,7 @@ openssl rsa -in <nombre>RSApriv.pem -text -noout
 Comprobamos en el apartado "DEK-info" que el archivo ha sido cifrado por DES en modo "CBC"
 
 <div style="page-break-after: always;"></div>
+
 ## Extraer en <nombre>RSApub.pem la clave pública contenida en el archivo <nombre>RSApub.pem no debe estar cifrado ni protegido.Mostrar sus valores.
 
 Para extraer la parte pública del archivo utilizamos:
@@ -66,6 +68,7 @@ privadas, es por eso que hay que añadir el parametro -pubin.
 ![](./ej3/showPub.png)
 
 <div style="page-break-after: always;"></div>
+
 ## Reutilizar el archivo binario input.bin de 1024 bits, todos ellos con valor a 0, de la practica anterior. Intentar cifrar input.bin con la clave pública y explicar el mensaje de error obtenido.
 
 Para intentar cifrar el archivo input.bin utilizaremos el comando:
@@ -89,6 +92,7 @@ too large for key size:../crypto/rsa/rsa_pk1.c:125:
 El parámetro "rsautl" no cifra ningún dato de entrada que sea más grande que el tamaño de la clave RSA. 901 < 1024, por lo tanto no puede cifrar el archivo.
 
 <div style="page-break-after: always;"></div>
+
 ## Diseñar un cifrado híbrido, con RSA como criptosistema asimétrico. El modo de proceder será el siguiente:
 
 ~~~~
@@ -146,6 +150,7 @@ mensaje.enc
 ![](./ej5/encryptMen.png)
 
 <div style="page-break-after: always;"></div>
+
 ## Utilizando el criptosistema híbrido diseñado, se debe cifrar el archivo input.bin con la propia clave pública. Y a continuación, descifrarlo con la clave privada y compararlo con el resultado original.
 
 Ciframos input.bin:
@@ -187,6 +192,7 @@ openssl enc -aes-256-ecb -pass file:sessionkey.denc
 El sistema funciona, hemos conseguido descifrar el mensaje.
 
 <div style="page-break-after: always;"></div>
+
 ## Generar un archivo stdECparam.pem que contenga los parámentros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
 
 Para ver el listado de curvas elípticas disponibles en OpenSSL usaremos el comando ___ecparam___. Con este comando también podremos manipular y generar dichas curvas.
@@ -217,6 +223,7 @@ Comprobamos que hay 2 líneas: ___ASN1 OID___ y ___NIST CURVE___.
   2. NIST(The National Institute of Standards and Technology) CURVE tiene el nombre de la curva en el standard, en nuestro caso P-256.
 
 <div style="page-break-after: always;"></div>
+
 ## Generar una clave para los parámentros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
 
 Para ello, y a partir del parámetro anterior ___ecparam___, escribimos en la terminal:
@@ -232,6 +239,7 @@ Así el archivo queda tal que:
 ![](./ej8/keyPriv.png)
 
 <div style="page-break-after: always;"></div>
+
 ## "Extraer" la clave privada contenida en el archivo <nombre>ECkey.pem a otro archivo que tenga por nombre <nombre>ECpriv.pem. Este archivo deberá estar protegido por contraseña. Mostrar los valores
 
 Como en los ejercicios anteriores con RSA extraeremos y protegeremos con contraseña utilizaremos el comando:
@@ -249,6 +257,7 @@ Podemos comprobar ahora el archivo:
 En la información comprobamos que se ha cifrado con "DES" en modo "CBC" el resto es la información necesaria para que, junto a la contraseña, se descifre el archivo.
 
 <div style="page-break-after: always;"></div>
+
 ## Extraer en <nombre>ECpub.pem la clave pública ccontenida en el archivo <nombre>ECkey.pem. Xomo antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
 
 Para ello utilizamos el comando:
