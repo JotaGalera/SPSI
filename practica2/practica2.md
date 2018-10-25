@@ -26,10 +26,12 @@ Con el parámetro -text, añade al archivo de las claves los valores de estas en
 Para extraer la parte privada de nuestra clave utilizamos:
 
 ~~~~
-openssl rsa -in <nombre><RSAkey.pem -out <nombre>RSApriv.pem
+openssl rsa -in <nombre>RSAkey.pem -out <nombre>RSApriv.pem -des
 ~~~~
 
-![](./ej2/genPriv.png)
+***NOTA***:Como contraseña utilizamos por recomendación del profesor:0123456789
+
+![](./ej2/privgen.png)
 
 Ahora mostramos el resultado de nuestra clave privada:
 
@@ -37,7 +39,9 @@ Ahora mostramos el resultado de nuestra clave privada:
 openssl rsa -in <nombre>RSApriv.pem -text -noout
 ~~~~
 
-![](./ej2/showPriv.png)
+![](./ej2/showpriv.png)
+
+Comprobamos en el apartado "DEK-info" que el archivo ha sido cifrado por DES en modo "CBC"
 
 ## Extraer en <nombre>RSApub.pem la clave pública contenida en el archivo <nombre>RSApub.pem no debe estar cifrado ni protegido.Mostrar sus valores.
 
@@ -164,3 +168,74 @@ openssl enc -aes-256-ecb -pass file:sessionkey.denc
 ![](./ej6/resulFin.png)
 
 El sistema funciona, hemos conseguido descifrar el mensaje.
+
+#Generar un archivo stdECparam.pem que contenga los parámentros públicos de una de las curvas elípticas contenidas en las transparencias de teoría. Si no se logra localizarla realizar el resto de la práctica con una curva cualquiera a vuestra elección de las disponibles en OpenSSL. Mostrar los valores.
+
+Para ver el listado de curvas elípticas disponibles en OpenSSL usaremos el comando ___ecparam___. Con este comando también podremos manipular y generar dichas curvas.
+
+Tipos(algunas) de curvas predefinidas en OpenSSL:
+![](./ej7/list.png)
+
+En mi caso escogeremos ___prime256v1___.
+
+Crearemos el archivo mediante:
+
+~~~~
+openssl ecparam -out stdECparam.pem -name prime256v1
+~~~~
+
+El archivo creado:
+
+![](./ej7/prime256.png)
+
+información del archivo:
+
+![](./ej7/infoprime256.png)
+
+Comprobamos que hay 2 líneas: ___ASN1 OID___ y ___NIST CURVE___.
+
+  1. OID es un nombre usado para identificar al objeto, ASN1(Abstract Syntax Notation One) es un protocolo de nivel de presentación del modelo OSI. ASN1 es una norma para representar datos de forma abstracta, haciendo posible que sean validos independientemente de la máquina empleada y sus formas de representación internas.
+
+  2. NIST(The National Institute of Standards and Technology) CURVE tiene el nombre de la curva en el standard, en nuestro caso P-256.
+
+#Generar una clave para los parámentros anteriores. La clave se almacenará en <nombre>ECkey.pem y no es necesario protegerla por contraseña.
+
+Para ello, y a partir del parámetro anterior ___ecparam___, escribimos en la terminal:
+
+~~~~
+openssl ecparam -in stdECparam.pem -out JavierGaleraECkey.pem -genkey
+~~~~
+
+Añadimos __-genkey__ para indicarle que genere la clave privada asociada a la curva elíptica con los parámetros introducidos.
+
+Así el archivo queda tal que:
+
+![](./ej8/keyPriv.png)
+
+# "Extraer" la clave privada contenida en el archivo <nombre>ECkey.pem a otro archivo que tenga por nombre <nombre>ECpriv.pem. Este archivo deberá estar protegido por contraseña. Mostrar los valores
+
+Como en los ejercicios anteriores con RSA extraeremos y protegeremos con contraseña utilizaremos el comando:
+
+~~~~
+openssl ec -in nombreECkey.pem -des -out nombreECpriv.pem
+~~~~
+
+***NOTA***:Como contaseña por recomendación se ha utilizado: 0123456789
+
+Podemos comprobar ahora el archivo:
+
+![](./ej9/priv.png)
+
+En la información comprobamos que se ha cifrado con "DES" en modo "CBC" el resto es la información necesaria para que, junto a la contraseña, se descifre el archivo.
+
+# Extraer en <nombre>ECpub.pem la clave pública ccontenida en el archivo <nombre>ECkey.pem. Xomo antes, no debe de estar cifrada ni protegida. Mostrar sus valores.
+
+Para ello utilizamos el comando:
+
+~~~~
+openssl ec -in nombreECkey.pem -pubout -out nombreECpub.pem
+~~~~
+
+Comprobamos ahora el archivo:
+
+![](./ej10/pub.png)
