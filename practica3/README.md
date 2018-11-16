@@ -311,4 +311,19 @@ openssl aes-128-cfb8 -pass file:keyJavier.bin -in firma_javier.sign -out firma_j
 ~~~~
 ![](./ej14/cifra.png)
 
-7. Galera procederá ahora a descifrar la firma 
+7. Galera procederá ahora a descifrar la firma de Javier usando la clave compartida( clave de Galera, keyGalera.bin).
+~~~~
+openssl aes-128-cfb8 -d -pass file:keyGalera.bin -in firma_javier_E.bin -out firma_javier_D.bin
+~~~~
+![](./ej14/firmaJD.png)
+
+Al igual que antes , verifica la firma usando la clave publica de Javier(JavierDSApub.pem):
+
+~~~~
+openssl dgst -sha256 -verify JavierDSApub.pem -signature firma_javier_D.bin concatenacionB.txt
+~~~~
+
+ Efectivamente se verifica:
+ ![](./ej14/vrfy2.png)
+
+8. A partir de ahora , ambos pueden estar seguros de que su clave secreta está compartida solo entre ellos. Y damos por finalizada la simulación.
