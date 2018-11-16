@@ -149,33 +149,166 @@ openssl dgst -c -sha384 -hex <nombre>DSApub.pem && xdd <nombre>DSApub.pem
 
 ## 9. Calcular el valor hash de message2 usando una función hash de 160 bits con salida binaria. Guardad el hash en message2.<algoritmo> y mostrar su contenido.
 
-En este caso utilizaremos RIPEMD-160, con ello el comando utilizado será:
+En este caso utilizaremos SHA1, con ello el comando utilizado será:
 
 ~~~~
-openssl dgst -binary -ripemd160 message2 > message2.ripemd160
+openssl dgst -binary -sha1 message2 > message2.ripemd160
 ~~~~
 
 Aquí podemos observar el contenido del archivo y la creación de este:
 
-![](ej9/create-show.png)
+![](ej9/create-show2.png)
 
 ## 10. Firmad el archivo message2 mediante el comando openssl dgst y la funcion hash del punto anterior. La firma deberá almacenarse en un archivo llamando message2.sign
 
+Firmaremos el archivo utilizando el comando:
+
 ~~~~
-openssl dgst -ripemd160 -sign <nombre>DSApriv.pem -out message2.sign message2
+openssl dgst -sha1 -sign <nombre>DSApriv.pem -out message2.sign message2
 ~~~~
 ![](ej10/sha1.png)
 
 ## 11. Verificad la firma message2.sign con los archivos message y message2  empleando el comando openssl dgst.
+
+Podemos verificar la firma con dgst de Openssl mediante:
 
 ~~~~
 openssl dgst -sha1 -verify JavierDSApub.pem -signature message2.sign message2
 ~~~~
 ![](ej11/verificada.png)
 
-## 12.
+## 12. Verificad que message2.sign es una firma correcta para message2 pero empleando el comando openssl pkeyutl
+
+Utilizando el siguiente comando podremos comprobar que se verifica:
+~~~~
+openssl pkeyutl -verify -in message2.sha1 -sigfile message2.sign -pubin
+-inkey <nombre>DSApub.key
+~~~~
+![](ej12/verify.png)
+
+## 13. Generar el valor HMAC del archivo sharedDSA.pem con clave '12345' mostrándolo por pantalla.
+
+Para ello emplearemos el comando utilizado anteriormente ___dgst___ y como dice el enunciado le añadiremos la clave '12345', tal que:
 
 ~~~~
-openssl pkeyutl -verify -in message2 -sigfile message.sign -pubin -inkey <nombre>DSApub.key
+openssl dgst -hmac '12345' sharedDSA.pem
 ~~~~
-![](ej12/noseverifica.png)
+![](ej13/result.png)
+
+## 14. Simular una ejecución completa del protocolo Estación a Estación. Para ello emplearemos como claves para firmar/verificación las generadas en esta práctica, y para el protocolo DH emplearemos las claves asociadas a curvas elípticas de la práctica anterior junto con las de otro usuario simulado que se deben generar nuevamente. El algoritmo simétrico a utilizar en el protocolo estación a estación será AES-128 en modo CFB8.
+
+1. Recopilamos las claves que vamos a utilizar a lo largo del ejercicio. Los participantes serán: Javier y Galera.
+Por tanto las claves que utilizaremos para firmar y verificar serán:
+
+~~~~
+-Javier: JavierDSApub.pem/JavierDSApriv.pem
+
+-Galera: GaleraDSApub.pem/GaleraDSApriv.pem
+~~~~
+
+Para el protocolo DH utilizaré las claves de la práctica anterior. Añadiendo una nueva pareja de claves para Galera.
+
+2. Mostramos la clave privada y pública asociada a las curvas elípticas de Javier:
+Nota: la pass de las claves privadas es: 0123456789
+
+Por parte de Javier tenemos:
+
+***PRIVADA***
+![](./ej14/JavierECpriv.png)
+
+***PUBLICA***
+![](./ej14/JavierECpub.png)
+
+Por parte de Galera tenemos:
+
+***PRIVADA***
+![](./ej14/GaleraECpriv.png)
+
+***PUBLICA***
+![](./ej14/GaleraECpub.png)
+
+Para generar la pareja de claves públicas y privadas se ha seguido el mismo proceso que en la práctica anterior.
+
+Ya tenemos todo listo para empezar la simulación.
+
+3. Comenzaremos utilizando una diapositiva del profesor:
+
+![](./ej14/DH.png)
+
+4. Javier comparte su clave pública con Galera.
+
+5. Galera genera su clave derivada usando el comando ***pkeyutl***, a partir de su clave privada y la pública de Javier tal que:
+~~~~
+openssl pkeyutl -derive -inkey GaleraECpriv.pem -peerkey JavierECpub.pem -out keyGalera.bin
+~~~~
+
+El resultado de esta operación es:
+
+![](./ej14/keyGalera.png)
+
+Una vez realizado esto, Galera concatena la clave pública de Javier con su clave pública, para ello utiliza:
+~~~~
+cat GaleraECpub.pem JavierECpub.pem > concatenacion.txt
+~~~~
+![](./ej14/concatenacion.png)
+
+Galera ahora firmará este fichero(concatenacion.txt), cifrando el valor hash con su clave privada. El resultado será almacenado en un archivo llamado firma_galera.sign y utlizará el comando ***dgst*** tal que:
+
+~~~~
+openssl dgst -sha256 -sign GaleraDSApriv.pem -out firma_galera.sign concatenacion.txt
+~~~~
+![](./ej14/firma.png)
+![](./ej14/blessG.png)
+
+Para cifrar el archivo se utilizará el cifrado simétrico indicado en el enunciado, AES-128 en modo CFB8:
+~~~~
+openssl aes-128-cfb8 -pass file:keyGalera.bin -in firma_galera.sign -out firma_galera_E.bin
+~~~~
+
+Como resultado obtenemos:
+![](./ej14/firmaGE.png)
+
+Galera envía la firma encriptada y su clave pública a Javier.
+
+6. Javier calculará su clave derivada como hizo Galera, simplemente ahora utilizarña su clave privada y la pública de Galera:
+
+~~~~
+openssl pkeyutl -derive -inkey JavierECpriv.pem -peerkey GaleraECpub.pem -out keyJavier.bin
+~~~~
+![](./ej14/keyJavier.png)
+
+Ahora Javier descifrará la firma recibida de Galera usando la clave derivada que acaba de crear:
+~~~~
+openssl aes-128-cfb8 -d -pass file:keyJavier.bin -in firma_galera_E.bin -out firma_galera_D.bin
+~~~~
+![](./ej14/galeraD.png)
+
+Como podemos comprobar la firma desencriptada es la misma que la original:
+![](./ej14/blessG.png)
+
+![](./ej14/galeraD.png)
+
+En este momento, Javier debe concatenar las claves como hizo Galera y verificar que el hash de dicho fichero el de la firma desencriptada con la clave pública de Galera son el mismo.
+
+~~~~
+openssl dgst -sha256 -verify GaleraDSApub.pem -signature firma_galera_D.bin concatenacion.txt
+~~~~
+![](./ej14/vrf.png)
+
+Javier procede a concatenar la clave publica de Javier y Galera tal que:
+~~~~
+cat JavierECpub.pem GaleraECpub.pem > concatenacionB.txt
+~~~~
+
+A continuación, procede a firmar dicho fichero con su clave privada:
+~~~~
+openssl dgst -sha256 -sign JavierDSApriv.pem -out firma_javier.sign cocatenacionB.txt
+~~~~
+
+Con el resultado: firma_javier. Javier procede a cifrarla al igual que antes con un cifrado simétrico aes-128 en su mudo CFB8.
+~~~~
+openssl aes-128-cfb8 -pass file:keyJavier.bin -in firma_javier.sign -out firma_javier_E.bin
+~~~~
+![](./ej14/cifra.png)
+
+7. Galera procederá ahora a descifrar la firma 
